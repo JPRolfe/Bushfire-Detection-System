@@ -16,8 +16,13 @@
  * @param pWire IC bus pointer object and construction device, can both pass or not pass parameters, Wire in default.
  * @param address Chip IIC address, 0x38 in default.
  */
-int pinTemp = A0;
+int LMT86 = A3;
+double A3_Read = 0;
+float LMT86_Voltage = 0;
+float LMT86_Temperature = 0;
+
 DFRobot_DHT20 dht20;
+
 void setup(){
   pinMode(13, OUTPUT);
   Serial.begin(115200);
@@ -30,22 +35,26 @@ void setup(){
 
 void loop(){
   //Get ambient temperature
+  A3_Read = analogRead(LMT86);
+  LMT86_Voltage = A3_Read*5.2/(1024);
   
-  int VoltTemp = analogRead(pinTemp);    //Read the analog pin
-  int RealTemp = ((10.888 - sqrt((10.888)*(10.888) + 4*0.00347*(1777.3-VoltTemp)))/2*(-0.00347)) + 30;   // convert output (mv) to readable celcius
-  int Temps = dht20.getTemperature();
-  if(Temps >= 25.00){
+  int DHT20_Temperature = dht20.getTemperature();
+  float LMT86_Temperature = (10.888 - sqrt(143.217468-13.88*LMT86_Voltage))/(-0.00694) + 30;
+
+  if(LMT86_Temperature >= 25.00){
     digitalWrite(13, HIGH);
   }
   else {
     digitalWrite(13, LOW);
   }
-  //Serial.print("temperature:"); Serial.print(dht20.getTemperature());Serial.print("C");
-  //Get relative humidity
-  Serial.print("  humidity:"); Serial.print(dht20.getHumidity()*100);Serial.println(" %RH");
-  Serial.print("Temperature: ");
-  Serial.print(RealTemp);
-  Serial.println("C");  //print the temperature status
-  delay(1000);   delay(1000);
 
+  //Print relative humidity
+  Serial.print("humidity: "); Serial.print(dht20.getHumidity()*100);Serial.println(" %RH");
+  //Print DHT20 Temperature
+  Serial.print("dht20 temperature: "); Serial.print(dht20.getTemperature());Serial.print("C\n");
+  //Print LMT86 Temperature
+  Serial.print("LMT86 Temperature: "); Serial.print(LMT86_Temperature); Serial.println("C");
+  
+  delay(1000); 
+    
 }

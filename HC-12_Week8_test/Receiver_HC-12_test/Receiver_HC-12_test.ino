@@ -30,7 +30,11 @@ void loop() {
        }
      }
 
+
     if(LMT86Temperature.length() == 2){       
+
+      Serial.println(LMT86Temperature);           // Print LMT Temperature to Serial monitor
+
       if(LMT86Temperature.toInt() >= 25){       // Turn on LED is temperature is above 25 degrees
       digitalWrite(13, HIGH);
       } else {

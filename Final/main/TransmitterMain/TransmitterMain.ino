@@ -7,7 +7,7 @@ int LMT86 = A3;
 double A3_Read = 0;
 float voltage = 0;
 float Temperature = 0;
-char charVal[10];
+char charVal[2];
 
 DFRobot_DHT20 dht20;
 
@@ -22,7 +22,7 @@ void setup() {
     delay(1000);
     }
   pinMode(13, OUTPUT);
-
+  pinMode(12, OUTPUT);
 }
 
 void loop() {
@@ -37,17 +37,25 @@ void loop() {
   float Temperature = (10.888 - sqrt(143.217468-13.88*voltage))/(-0.00694) + 30;    // Equation to transform into Degrees Celsius from datasheet
   
   String StrTemp = String(Temperature, 2);
-  String StrDHT20T = String(dht20.getTemperature(), 2);
+  itoa(round(dht20.getHumidity()*100), charVal, 10);        // Int to String (Int, char Array, Base of the number so Decimal = 10 ).
   
-  Serial.print("LMT86T: "); Serial.print(StrTemp[0]); Serial.print(StrTemp[1]); 
-  Serial.print(" || DHT20: "); Serial.println(dht20.getTemperature());
+  Serial.print("DHTHumidity: "); Serial.print(charVal[0]); Serial.println(charVal[1]);
+  Serial.print("LMT86T: "); Serial.print(StrTemp[0]); Serial.println(StrTemp[1]); 
   
   if(Temperature >= 25){        // If Temperature is > 25 Degrees Celsius, then turn on LED
       digitalWrite(13, HIGH);
   } else {
       digitalWrite(13, LOW);
   }
-  HC12.write(StrTemp[0]);      // Transmit the LMT Temperature Readings
-  HC12.write(StrTemp[1]);      
+  if(round(dht20.getHumidity()*100) >= 70){   // if Humidity is above 70% then turn on LED
+      digitalWrite(12, HIGH);
+  } else {
+      digitalWrite(12, LOW);
+  }
+  
+  HC12.write("L");
+  HC12.write(StrTemp[0]); HC12.write(StrTemp[1]);      // Transmit the LMT Temperature Readings
+  HC12.write("D");    
+  HC12.write(charVal[0]); HC12.write(charVal[1]);      // Transmit the DHT20 Humidity Readings
   delay(1000); 
   }

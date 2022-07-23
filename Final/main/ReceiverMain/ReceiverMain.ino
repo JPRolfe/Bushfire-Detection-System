@@ -5,6 +5,7 @@ SoftwareSerial HC12(10, 11); // HC-12 TX Pin, HC-12 RX Pin
 char tempChar;
 String LMT86Temperature;
 String DHTHumidity;
+String SoilMoist;
 int switcher = 0;
 
 void setup() {
@@ -29,6 +30,11 @@ void loop() {
       switcher = 2;
       DHTHumidity = "";
      }
+     else if(tempChar == 'H'){
+      Serial.println(SoilMoist);
+      switcher = 3;
+      SoilMoist = "";
+     }
 
      
      if(switcher == 1 && tempChar != 'L'){          // Records the sensor information being received into a variable.
@@ -36,6 +42,9 @@ void loop() {
      } 
      else  if(switcher == 2 && tempChar != 'D') {
       DHTHumidity += tempChar;
+     }
+     else if(switcher == 3 && tempChar != 'H'){
+       SoilMoist += tempChar;
      }
 
 

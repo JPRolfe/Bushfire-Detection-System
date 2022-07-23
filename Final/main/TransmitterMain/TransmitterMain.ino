@@ -41,7 +41,7 @@ void loop() {
   
   Serial.print("DHTHumidity: "); Serial.print(charVal[0]); Serial.println(charVal[1]);
   Serial.print("LMT86T: "); Serial.print(StrTemp[0]); Serial.println(StrTemp[1]); 
-  
+  Serial.print("DHTTemp: "); Serial.println(dht20.getTemperature());
   if(Temperature >= 25){        // If Temperature is > 25 Degrees Celsius, then turn on LED
       digitalWrite(13, HIGH);
   } else {

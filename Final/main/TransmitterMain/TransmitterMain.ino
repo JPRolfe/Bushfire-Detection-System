@@ -3,11 +3,16 @@
 #include <SoftwareSerial.h>
 #include <DFRobot_DHT20.h>
 
-int LMT86 = A3;
+const int AirValue = 616;   //replace the value with value when placed in air using calibration code 
+const int WaterValue = 335; //replace the value with value when placed in water using calibration code 
+
 double A3_Read = 0;
-float voltage = 0;
-float Temperature = 0;
-char charVal[2];
+double A2_Read =0;
+
+float LMTvoltage = 0;
+float LMTTemperature = 0;
+char humidVal[2];
+char soilVal[2];
 
 DFRobot_DHT20 dht20;
 
@@ -31,18 +36,31 @@ void loop() {
     Serial.write(HC12.read());      // Send the data to Serial monitor
   }
 
-   A3_Read = analogRead(LMT86);
-   voltage = (A3_Read*5)/1024;    // ( Analog_Reading * Power Supply Voltage ) / (ADC resolution)  --- Analog to Digital Conversion (10 bit ADC)
-
-  float Temperature = (10.888 - sqrt(143.217468-13.88*voltage))/(-0.00694) + 30;    // Equation to transform into Degrees Celsius from datasheet
+   A3_Read = analogRead(A3);
+   A2_Read = analogRead(A2);
+   delay(10);
+   //soilMoistureValue = analogRead(A2);
+   
+   LMTvoltage = (A3_Read*5)/1023;    // ( Analog_Reading * Power Supply Voltage ) / (ADC resolution)  --- Analog to Digital Conversion (10 bit ADC)
   
-  String StrTemp = String(Temperature, 2);
-  itoa(round(dht20.getHumidity()*100), charVal, 10);        // Int to String (Int, char Array, Base of the number so Decimal = 10 ).
+  float LMTTemperature = (10.888 - sqrt(143.217468-13.88*LMTvoltage))/(-0.00694) + 30;    // Equation to transform into Degrees Celsius from datasheet
   
+<<<<<<< Updated upstream
   Serial.print("DHTHumidity: "); Serial.print(charVal[0]); Serial.println(charVal[1]);
   Serial.print("LMT86T: "); Serial.print(StrTemp[0]); Serial.println(StrTemp[1]); 
   Serial.print("DHTTemp: "); Serial.println(dht20.getTemperature());
   if(Temperature >= 25){        // If Temperature is > 25 Degrees Celsius, then turn on LED
+=======
+  String StrTemp = String(LMTTemperature, 2);
+  itoa(round(dht20.getHumidity()*100), humidVal, 10);        // Int to String (Int, char Array, Base of the number so Decimal = 10 ).
+  
+  Serial.print("DHTHumidity: "); Serial.println(humidVal);
+  Serial.print("LMT86T: "); Serial.println(StrTemp); 
+  Serial.print("Soil: "); Serial.println(A2_Read);
+
+  
+  if(LMTTemperature >= 25){        // If Temperature is > 25 Degrees Celsius, then turn on LED
+>>>>>>> Stashed changes
       digitalWrite(13, HIGH);
   } else {
       digitalWrite(13, LOW);
@@ -56,6 +74,9 @@ void loop() {
   HC12.write("L");
   HC12.write(StrTemp[0]); HC12.write(StrTemp[1]);      // Transmit the LMT Temperature Readings
   HC12.write("D");    
-  HC12.write(charVal[0]); HC12.write(charVal[1]);      // Transmit the DHT20 Humidity Readings
+  HC12.write(humidVal[0]); HC12.write(humidVal[1]);      // Transmit the DHT20 Humidity Readings
+  HC12.write("H");
+  HC12.write(soilVal);
+  
   delay(1000); 
   }

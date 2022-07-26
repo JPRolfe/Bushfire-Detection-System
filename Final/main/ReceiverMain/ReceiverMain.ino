@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 
-SoftwareSerial HC12(10, 11); // HC-12 TX Pin, HC-12 RX Pin
+SoftwareSerial HC12(8, 7); // HC-12 TX Pin, HC-12 RX Pin
 
 char tempChar;
 String LMT86Temperature;

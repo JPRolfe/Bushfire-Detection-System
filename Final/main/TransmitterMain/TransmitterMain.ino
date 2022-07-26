@@ -11,12 +11,14 @@ double A2_Read =0;
 
 float LMTvoltage = 0;
 float LMTTemperature = 0;
-char humidVal[2];
-char soilVal[2];
+
+String moistureString;
+String humidString;
+String tempString;
 
 DFRobot_DHT20 dht20;
 
-SoftwareSerial HC12(10, 11); // HC-12 TX Pin, HC-12 RX Pin
+SoftwareSerial HC12(7, 8); // HC-12 TX Pin, HC-12 RX Pin
 
 void setup() {
   // put your setup code here, to run once:
@@ -38,29 +40,24 @@ void loop() {
 
    A3_Read = analogRead(A3);
    A2_Read = analogRead(A2);
-   delay(10);
-   //soilMoistureValue = analogRead(A2);
+   
+   int soilMoistureValue = (((A2_Read-616)*(-1))/281)*100; // Soil Moisture Percentage.
+   int Humidity = round(dht20.getHumidity()*100);
    
    LMTvoltage = (A3_Read*5)/1023;    // ( Analog_Reading * Power Supply Voltage ) / (ADC resolution)  --- Analog to Digital Conversion (10 bit ADC)
   
-  float LMTTemperature = (10.888 - sqrt(143.217468-13.88*LMTvoltage))/(-0.00694) + 30;    // Equation to transform into Degrees Celsius from datasheet
+  int LMTTemperature = round((10.888 - sqrt(143.217468-13.88*LMTvoltage))/(-0.00694) + 30);    // Equation to transform into Degrees Celsius from datasheet
   
-<<<<<<< Updated upstream
-  Serial.print("DHTHumidity: "); Serial.print(charVal[0]); Serial.println(charVal[1]);
-  Serial.print("LMT86T: "); Serial.print(StrTemp[0]); Serial.println(StrTemp[1]); 
-  Serial.print("DHTTemp: "); Serial.println(dht20.getTemperature());
-  if(Temperature >= 25){        // If Temperature is > 25 Degrees Celsius, then turn on LED
-=======
-  String StrTemp = String(LMTTemperature, 2);
-  itoa(round(dht20.getHumidity()*100), humidVal, 10);        // Int to String (Int, char Array, Base of the number so Decimal = 10 ).
+  tempString = String(LMTTemperature, 10);
+  humidString = String(Humidity, 10);
+  moistureString = String(soilMoistureValue, 10);
   
-  Serial.print("DHTHumidity: "); Serial.println(humidVal);
-  Serial.print("LMT86T: "); Serial.println(StrTemp); 
-  Serial.print("Soil: "); Serial.println(A2_Read);
+  Serial.print("DHTHumidity: "); Serial.println(humidString);
+  Serial.print("LMT86T: "); Serial.println(tempString); 
+  Serial.print("Soil: "); Serial.println(moistureString);
 
   
   if(LMTTemperature >= 25){        // If Temperature is > 25 Degrees Celsius, then turn on LED
->>>>>>> Stashed changes
       digitalWrite(13, HIGH);
   } else {
       digitalWrite(13, LOW);
@@ -72,11 +69,11 @@ void loop() {
   }
   
   HC12.write("L");
-  HC12.write(StrTemp[0]); HC12.write(StrTemp[1]);      // Transmit the LMT Temperature Readings
+  HC12.write(tempString[0]); HC12.write(tempString[1]);      // Transmit the LMT Temperature Readings
   HC12.write("D");    
-  HC12.write(humidVal[0]); HC12.write(humidVal[1]);      // Transmit the DHT20 Humidity Readings
+  HC12.write(humidString[0]); HC12.write(humidString[1]);        // Transmit the DHT20 Humidity Readings
   HC12.write("H");
-  HC12.write(soilVal);
+  HC12.write(moistureString[0]); HC12.write(moistureString[1]);
   
   delay(1000); 
   }

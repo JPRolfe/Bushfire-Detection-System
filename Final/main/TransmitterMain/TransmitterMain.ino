@@ -30,6 +30,7 @@ void setup() {
     }
   pinMode(13, OUTPUT);
   pinMode(12, OUTPUT);
+  pinMode(11, OUTPUT);
 }
 
 void loop() {
@@ -67,7 +68,12 @@ void loop() {
   } else {
       digitalWrite(12, LOW);
   }
-  
+
+  if(moistureString.toInt() >= 50) {
+    digitalWrite(11, HIGH);
+  } else {
+    digitalWrite(11, LOW);
+  }
   HC12.write("L");
   HC12.write(tempString[0]); HC12.write(tempString[1]);      // Transmit the LMT Temperature Readings
   HC12.write("D");    

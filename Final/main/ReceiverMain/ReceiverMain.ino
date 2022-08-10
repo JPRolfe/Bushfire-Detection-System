@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 
-SoftwareSerial HC12(8, 7); // HC-12 TX Pin, HC-12 RX Pin
+SoftwareSerial HC12(10,9);
+SoftwareSerial HC06(8, 7); // HC-12 TX Pin, HC-12 RX Pin
 
 char tempChar;
 String LMT86Temperature;
@@ -10,9 +11,12 @@ int switcher = 0;
 
 void setup() {
   Serial.begin(9600);             // Serial port to computer
-  HC12.begin(9600);               // Serial port to HC12
+  HC06.begin(9600);
+  HC12.begin(9600);  // Serial port to HC12
   pinMode(13, OUTPUT);
   pinMode(12, OUTPUT);
+  pinMode(11, OUTPUT);
+
 }
 
 void loop() {
@@ -21,17 +25,26 @@ void loop() {
      tempChar = HC12.read();                  // tempChar is collecting each character that has been received
 
      if(tempChar == 'L'){                     // Switching a variable to identify which sensor information is being read
-      Serial.println(LMT86Temperature);
+      Serial.print("Temperature: "); Serial.println(LMT86Temperature);
+      HC06.write('L');
+      HC06.write(LMT86Temperature[0]);
+      HC06.write(LMT86Temperature[1]);
       switcher = 1;
       LMT86Temperature = "";
      }
      else if(tempChar == 'D'){
-      Serial.println(DHTHumidity);
+      Serial.print("Humidity: "); Serial.println(DHTHumidity);
+      HC06.write('D');
+      HC06.write(DHTHumidity[0]);
+      HC06.write(DHTHumidity[1]);
       switcher = 2;
       DHTHumidity = "";
      }
      else if(tempChar == 'H'){
-      Serial.println(SoilMoist);
+      Serial.print("Moisture: "); Serial.println(SoilMoist);
+      HC06.write('H');
+      HC06.write(SoilMoist[0]);
+      HC06.write(SoilMoist[1]);
       switcher = 3;
       SoilMoist = "";
      }
@@ -59,10 +72,16 @@ void loop() {
      } else {
       digitalWrite(12, LOW);
      }
+     if(SoilMoist.toInt() >= 70){           // Turn on LED if relative humidity is above 70%
+      digitalWrite(11, HIGH);
+     } else {
+      digitalWrite(11, LOW);
+     }
 
   }
-  while (Serial.available()) {      // If Serial monitor has data (Transmitting)
-    HC12.write(Serial.read());      // Send that data to HC-12
-  }
 
+  
+  
+  delay(1000);     // If Serial monitor has data (Transmitting)
+  
  }
